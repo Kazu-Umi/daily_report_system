@@ -79,6 +79,7 @@ public class ReportService extends ServiceBase {
         return ReportConverter.toView(findOneInternal(id));
     }
 
+
     /**
      * 画面から入力された日報の登録内容を元にデータを1件作成し、日報テーブルに登録する
      * @param rv 日報の登録内容
@@ -128,6 +129,7 @@ public class ReportService extends ServiceBase {
     private Report findOneInternal(int id) {
         return em.find(Report.class, id);
     }
+
 
     /**
      * 日報データを1件登録する
