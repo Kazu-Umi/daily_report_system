@@ -6,32 +6,40 @@ import java.util.List;
 import javax.servlet.ServletException;
 
 import actions.views.EmployeeView;
+import actions.views.FollowView;
 import actions.views.ReportView;
 import constants.AttributeConst;
 import constants.ForwardConst;
 import constants.JpaConst;
 import services.EmployeeService;
+import services.FollowService;
 import services.ReportService;
 
 public class EmployeeReportAction extends ActionBase {
 
     private EmployeeService employeeService;
     private ReportService reportService;
+    private FollowService followService;
 
     @Override
     public void process() throws ServletException, IOException {
 
         employeeService = new EmployeeService();
         reportService = new ReportService();
+        followService = new FollowService();
+
 
         invoke();
 
         employeeService.close();
         reportService.close();
+        followService.close();
 
     }
 
     public void index() throws ServletException, IOException {
+
+        putRequestScope(AttributeConst.TOKEN, getTokenId()); //CSRF対策用トークン
 
         //idを条件に従業員データを取得する
         EmployeeView ev = employeeService.findOne(toNumber(getRequestParam(AttributeConst.EMP_ID)));
@@ -49,13 +57,12 @@ public class EmployeeReportAction extends ActionBase {
         putRequestScope(AttributeConst.PAGE, page); //ページ数
         putRequestScope(AttributeConst.MAX_ROW, JpaConst.ROW_PER_PAGE); //1ページに表示するレコードの数
 
+        //セッションからログイン中の従業員情報を取得
+        EmployeeView loginEmployee = (EmployeeView) getSessionScope(AttributeConst.LOGIN_EMP);
 
-        //セッションにフラッシュメッセージが設定されている場合はリクエストスコープに移し替え、セッションからは削除する
-        String flush = getSessionScope(AttributeConst.FLUSH);
-        if (flush != null) {
-            putRequestScope(AttributeConst.FLUSH, flush);
-            removeSessionScope(AttributeConst.FLUSH);
-        }
+        //フォローデータを取得する
+        FollowView fv = followService.findOne(loginEmployee, ev);
+        putRequestScope(AttributeConst.FOLLOW, fv); //取得したフォローデータ
 
         //一覧画面を表示
         forward(ForwardConst.FW_EMPREP_INDEX);

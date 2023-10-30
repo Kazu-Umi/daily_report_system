@@ -53,7 +53,9 @@ public enum AttributeConst {
     //フォロー管理
     FOLLOW("follow"),
     FOLLOWS("follows"),
-    FOL_COUNT("follows_count");
+    FOL_COUNT("follows_count"),
+    FOL_ID("id"),
+    FOLLOWER_ID("follower_id");
 
     private final String text;
     private final Integer i;

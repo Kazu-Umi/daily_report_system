@@ -1,15 +1,18 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ page import="constants.AttributeConst" %>
 <%@ page import="constants.ForwardConst" %>
 
 <c:set var="actEmpRep" value="${ForwardConst.ACT_EMPREP.getValue()}" />
 <c:set var="actEmp" value="${ForwardConst.ACT_EMP.getValue()}" />
 <c:set var="actRep" value="${ForwardConst.ACT_REP.getValue()}" />
+<c:set var="actFol" value="${ForwardConst.ACT_FOL.getValue()}" />
 
 <c:set var="commShow" value="${ForwardConst.CMD_SHOW.getValue()}" />
 <c:set var="commIdx" value="${ForwardConst.CMD_INDEX.getValue()}" />
-<c:set var="commNew" value="${ForwardConst.CMD_NEW.getValue()}" />
+<c:set var="commCrt" value="${ForwardConst.CMD_CREATE.getValue()}" />
+<c:set var="commDel" value="${ForwardConst.CMD_DESTROY.getValue()}" />
 
 <c:import url="../layout/app.jsp">
     <c:param name="content">
@@ -19,6 +22,25 @@
             </div>
         </c:if>
         <h2>${employee.name}　の日報　一覧</h2>
+        <c:choose>
+            <c:when test="${sessionScope.login_employee.id == employee.id}">
+                <p>（自分）</p>
+            </c:when>
+            <c:when test="${employee.id != follow.followerEmployee.id}">
+                <form method="POST" action="<c:url value='?action=${actFol}&command=${commCrt}' />">
+                    <input type="hidden" name="${AttributeConst.EMP_ID.getValue()}" value="${employee.id}" />
+                    <input type="hidden" name="${AttributeConst.TOKEN.getValue()}" value="${_token}" />
+                    <button type="submit">フォローする</button>
+                </form>
+            </c:when>
+            <c:otherwise>
+                <form method="POST"action="<c:url value='?action=${actFol}&command=${commDel}' />">
+                    <input type="hidden" name="${AttributeConst.FOL_ID.getValue()}" value="${follow.id}" />
+                    <input type="hidden" name="${AttributeConst.TOKEN.getValue()}" value="${_token}" />
+                    <input type="submit" value="フォローを解除する" />
+                </form>
+            </c:otherwise>
+        </c:choose>
         <table id="report_list">
             <tbody>
                 <tr>

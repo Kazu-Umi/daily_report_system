@@ -1,27 +1,38 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ page import="constants.AttributeConst" %>
 <%@ page import="constants.ForwardConst" %>
 
 <c:set var="actEmpRep" value="${ForwardConst.ACT_EMPREP.getValue()}" />
 <c:set var="actFol" value="${ForwardConst.ACT_FOL.getValue()}" />
 <c:set var="commIdx" value="${ForwardConst.CMD_INDEX.getValue()}" />
-<c:set var="commShow" value="${ForwardConst.CMD_SHOW.getValue()}" />
-<c:set var="commNew" value="${ForwardConst.CMD_NEW.getValue()}" />
+<c:set var="commDel" value="${ForwardConst.CMD_DESTROY.getValue()}" />
 
 <c:import url="/WEB-INF/views/layout/app.jsp">
     <c:param name="content">
+        <c:if test="${flush != null}">
+            <div id="flush_success">
+                <c:out value="${flush}"></c:out>
+            </div>
+        </c:if>
         <h2>フォローリスト</h2>
         <table id="follow_list">
             <tbody>
                 <tr>
-                    <th class="follows_name">氏名</th>
+                    <th class="follow_name">氏名</th>
+                    <th class="follow_action">操作</th>
                 </tr>
                 <c:forEach var="follow" items="${follows}" varStatus="status">
-                    <fmt:parseDate value="${follow.followDate}" pattern="yyyy-MM-dd" var="reportDay" type="date" />
-
                     <tr class="row${status.count % 2}">
-                        <td class="follow_name"><a href="<c:url value='?action=${actEmpRep}&command=${commIdx}&id=${follow.employee.id}' />"><c:out value="${follow.employee.name}" /></a></td>
+                        <td class="follow_name"><a href="<c:url value='?action=${actEmpRep}&command=${commIdx}&id=${follow.followerEmployee.id}' />"><c:out value="${follow.followerEmployee.name}" /></a></td>
+                        <td class="follow_action">
+                        <form method="POST"action="<c:url value='?action=${actFol}&command=${commDel}' />">
+                            <input type="hidden" name="${AttributeConst.FOL_ID.getValue()}" value="${follow.id}" />
+                            <input type="hidden" name="${AttributeConst.TOKEN.getValue()}" value="${_token}" />
+                            <input type="submit" value="フォローを解除する" />
+                        </form>
+                        </td>
                     </tr>
                 </c:forEach>
             </tbody>
@@ -29,7 +40,7 @@
 
         <div id="pagination">
             （全 ${follows_count} 件）<br />
-            <c:forEach var="i" begin="1" end="${((reports_count - 1) / maxRow) + 1}" step="1">
+            <c:forEach var="i" begin="1" end="${((follows_count - 1) / maxRow) + 1}" step="1">
                 <c:choose>
                     <c:when test="${i == page}">
                         <c:out value="${i}" />&nbsp;
